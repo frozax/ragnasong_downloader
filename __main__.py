@@ -11,15 +11,15 @@ from io import BytesIO
 RAGNASONG_API_ENDPOINT = "https://ragnasong.com/api/searchMap/?start={start}&dificulty="
 RAGNASONG_SONG = "https://ragnasong.com/api/map/{id}.zip"
 SONGS_PER_PAGE = 10
-REQ_VOTES = 15
-REQ_RATIO = 0.9
+REQ_VOTES = 10
+REQ_RATIO = 0.8
 
 def error(msg):
     print(msg)
     sys.exit(1)
 
 custom_songs_path = Path("C:\\Users\\Francois\\Documents") / "Ragnarock" / "CustomSongs"
-custom_songs_path = Path("D:\\gamedev\\tmp\\ragnarock")
+#custom_songs_path = Path("D:\\gamedev\\tmp\\ragnarock")
 
 def err(s):
     print(colorama.Fore.RED + s + colorama.Style.RESET_ALL)
@@ -50,6 +50,7 @@ for f in custom_songs_path.iterdir():
 
 ok(f"Currently installed Songs: {len(downloaded_songs)}")
 while True:
+    ok(f"Downloadings songs {start}-{start+9}")
     url = RAGNASONG_API_ENDPOINT.format(start=start)
     r = requests.get(url)
     d = r.json()
@@ -84,11 +85,7 @@ while True:
                     with zf.open(f_in_zip) as f_in_zip_f:
                         (folder_name / splitted[-1]).open('wb').write(f_in_zip_f.read())
 
-
-        break
-
     start += SONGS_PER_PAGE
-    if True: #start >= total:
+    if start >= total:
         ok("=> End")
         break
-    break
