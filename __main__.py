@@ -11,6 +11,8 @@ from io import BytesIO
 RAGNASONG_API_ENDPOINT = "https://ragnasong.com/api/searchMap/?start={start}&dificulty="
 RAGNASONG_SONG = "https://ragnasong.com/api/map/{id}.zip"
 SONGS_PER_PAGE = 10
+REQ_VOTES = 15
+REQ_RATIO = 0.9
 
 def error(msg):
     print(msg)
@@ -42,7 +44,7 @@ for f in custom_songs_path.iterdir():
     if not f.is_dir():
         continue
     try:
-        downloaded_songs.append(int(f.name))
+        downloaded_songs.append(int(f.name.split()[0]))
     except ValueError:
         continue
 
@@ -57,14 +59,31 @@ while True:
     for song in d["results"]:
         song_name = f"{song['artist']} - {song['title']}"
         song_id = int(song["id"])
+        votes = song['downVotes'] + song['upVotes']
+        if votes < REQ_VOTES:
+            warn(f"[NOT ENOUGH VOTES {votes}/{REQ_VOTES}] {song_name}")
+            continue
+        ratio = song['upVotes'] / votes
+        if ratio < REQ_RATIO:
+            warn(f"[RATING TOO LOW {ratio}/{REQ_RATIO}] {song_name}")
+            continue
         if song_id in downloaded_songs:
             ok(f"[ALREADY DOWNLOADED] {song_name}")
-        else:
-            warn(f"[DOWNLOADING...] {song_name}")
-            url_song = RAGNASONG_SONG.format(id=song_id)
-            r_song = requests.get(url_song)
-            with zipfile.ZipFile(BytesIO(r_song.content)) as zf:
-                zf.extractall(custom_songs_path / str(song_id))
+            continue
+        warn(f"[DOWNLOADING...] {song_name}")
+        url_song = RAGNASONG_SONG.format(id=song_id)
+        r_song = requests.get(url_song)
+        with zipfile.ZipFile(BytesIO(r_song.content)) as zf:
+            folder_name = custom_songs_path / f"{song_id} - {song['title'].lower()}"
+            folder_name.mkdir()
+            warn(f"[EXTRACTING...] in {folder_name}")
+            for f_in_zip in zf.namelist():
+                splitted = f_in_zip.split('/')
+                assert(len(splitted) == 2, f"{splitted} should be length=2")
+                if splitted[-1] != "":
+                    with zf.open(f_in_zip) as f_in_zip_f:
+                        (folder_name / splitted[-1]).open('wb').write(f_in_zip_f.read())
+
 
         break
 
