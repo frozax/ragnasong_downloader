@@ -43,14 +43,11 @@ downloaded_songs = []
 for f in custom_songs_path.iterdir():
     if not f.is_dir():
         continue
-    try:
-        downloaded_songs.append(int(f.name.split()[0]))
-    except ValueError:
-        continue
+    downloaded_songs.append(f.name)
 
 ok(f"Currently installed Songs: {len(downloaded_songs)}")
 while True:
-    ok(f"Downloadings songs {start}-{start+9}")
+    ok(f"Downloading songs {start}-{start+9}")
     url = RAGNASONG_API_ENDPOINT.format(start=start)
     r = requests.get(url)
     d = r.json()
@@ -60,6 +57,7 @@ while True:
     for song in d["results"]:
         song_name = f"{song['artist']} - {song['title']}"
         song_id = int(song["id"])
+        song_folder_name = song['title'].lower().replace(' ', '')
         votes = song['downVotes'] + song['upVotes']
         if votes < REQ_VOTES:
             warn(f"[NOT ENOUGH VOTES {votes}/{REQ_VOTES}] {song_name}")
@@ -68,14 +66,14 @@ while True:
         if ratio < REQ_RATIO:
             warn(f"[RATING TOO LOW {ratio}/{REQ_RATIO}] {song_name}")
             continue
-        if song_id in downloaded_songs:
+        if song_folder_name in downloaded_songs:
             ok(f"[ALREADY DOWNLOADED] {song_name}")
             continue
         warn(f"[DOWNLOADING...] {song_name}")
         url_song = RAGNASONG_SONG.format(id=song_id)
         r_song = requests.get(url_song)
         with zipfile.ZipFile(BytesIO(r_song.content)) as zf:
-            folder_name = custom_songs_path / f"{song_id} - {song['title'].lower()}"
+            folder_name = custom_songs_path / song_folder_name
             folder_name.mkdir()
             warn(f"[EXTRACTING...] in {folder_name}")
             for f_in_zip in zf.namelist():
