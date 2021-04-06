@@ -8,16 +8,12 @@ from io import BytesIO
 import string
 
 # Conf
-#STEAM_PARENT_FOLDER = "D:\\Program Files (x86)"
-RAGNASONG_API_ENDPOINT = "https://ragnasong.com/api/searchMap/?start={start}&dificulty="
-RAGNASONG_SONG = "https://ragnasong.com/api/map/{id}.zip"
-SONGS_PER_PAGE = 10
 REQ_VOTES = 10
 REQ_RATIO = 0.8
 
-def error(msg):
-    print(msg)
-    sys.exit(1)
+RAGNASONG_API_ENDPOINT = "https://ragnasong.com/api/searchMap/?start={start}&dificulty="
+RAGNASONG_SONG = "https://ragnasong.com/api/map/{id}.zip"
+SONGS_PER_PAGE = 10
 
 custom_songs_path = Path("~/Documents").expanduser() / "Ragnarock" / "CustomSongs"
 
@@ -29,9 +25,6 @@ def warn(s):
 
 def ok(s):
     print(colorama.Fore.GREEN + s + colorama.Style.RESET_ALL)
-
-def debug(s):
-    print(s)
 
 if not custom_songs_path.exists():
     warn(f"Create custom songs path {custom_songs_path}")
