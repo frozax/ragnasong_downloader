@@ -19,8 +19,7 @@ def error(msg):
     print(msg)
     sys.exit(1)
 
-custom_songs_path = Path("C:\\Users\\Francois\\Documents") / "Ragnarock" / "CustomSongs"
-#custom_songs_path = Path("D:\\gamedev\\tmp\\ragnarock")
+custom_songs_path = Path("~/Documents").expanduser() / "Ragnarock" / "CustomSongs"
 
 def err(s):
     print(colorama.Fore.RED + s + colorama.Style.RESET_ALL)
