@@ -5,6 +5,7 @@ import colorama
 from pprint import pprint
 import zipfile
 from io import BytesIO
+import string
 
 # Conf
 #STEAM_PARENT_FOLDER = "D:\\Program Files (x86)"
@@ -57,7 +58,11 @@ while True:
     for song in d["results"]:
         song_name = f"{song['artist']} - {song['title']}"
         song_id = int(song["id"])
-        song_folder_name = song['title'].lower().replace(' ', '')
+        song_folder_name = ""
+        for c in song['title'].lower():
+            if c in string.ascii_lowercase:
+                song_folder_name += c
+
         votes = song['downVotes'] + song['upVotes']
         if votes < REQ_VOTES:
             warn(f"[NOT ENOUGH VOTES {votes}/{REQ_VOTES}] {song_name}")
@@ -78,7 +83,7 @@ while True:
             warn(f"[EXTRACTING...] in {folder_name}")
             for f_in_zip in zf.namelist():
                 splitted = f_in_zip.split('/')
-                assert(len(splitted) == 2, f"{splitted} should be length=2")
+                assert len(splitted) == 2, f"{splitted} should be length=2"
                 if splitted[-1] != "":
                     with zf.open(f_in_zip) as f_in_zip_f:
                         (folder_name / splitted[-1]).open('wb').write(f_in_zip_f.read())
