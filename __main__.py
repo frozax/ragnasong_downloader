@@ -1,3 +1,9 @@
+# script to download custom songs from ragnarock
+# you can choose the number of votes and rating below
+#
+# i'm @frozax on github and twitter
+# i'm prozero in-game and on the discord of ragnarock and ragnasongs
+
 import sys
 from pathlib import Path
 import requests
