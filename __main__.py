@@ -14,7 +14,7 @@ from io import BytesIO
 import string
 
 # Conf
-REQ_VOTES = 10
+REQ_VOTES = 7
 REQ_RATIO = 0.8
 
 RAGNASONG_API_ENDPOINT = "https://ragnasong.com/api/searchMap/?start={start}&dificulty="
@@ -81,8 +81,16 @@ while True:
             warn(f"[EXTRACTING...] in {folder_name}")
             for f_in_zip in zf.namelist():
                 splitted = f_in_zip.split('/')
-                assert len(splitted) == 2, f"{splitted} should be length=2"
-                if splitted[-1] != "":
+                if len(splitted) == 2:
+                    fname = splitted[-1]
+                elif len(splitted) == 1:
+                    fname = splitted[0]
+                elif len(splitted) == 3:
+                    err(f"weird file: {f_in_zip}, ignored")
+                    fname = ""
+                else:
+                    assert False, f"{splitted} should be length=2 (from {f_in_zip})"
+                if fname != "":
                     with zf.open(f_in_zip) as f_in_zip_f:
                         (folder_name / splitted[-1]).open('wb').write(f_in_zip_f.read())
 
