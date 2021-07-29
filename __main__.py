@@ -1,4 +1,5 @@
 # script to download custom songs from ragnarock
+# https://github.com/frozax/ragnasong_downloader
 
 import json
 import shutil
