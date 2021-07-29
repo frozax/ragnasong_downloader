@@ -1,10 +1,11 @@
 # script to download custom songs from ragnarock
 # you can choose the number of votes and rating below
 #
-# i'm @frozax on github and twitter
+# i'm @frozax on github and twitter. If you want to support me, just have a look at my games at https://www.frozax.com (mobile and steam)
 # i'm prozero in-game and on the discord of ragnarock and ragnasongs
 
-import sys
+import json
+import shutil
 from pathlib import Path
 import requests
 import colorama
@@ -14,7 +15,6 @@ from io import BytesIO
 import string
 
 # Conf
-REQ_VOTES = 7
 REQ_RATIO = 0.8
 
 RAGNASONG_API_ENDPOINT = "https://ragnasong.com/api/searchMap/?start={start}&dificulty="
@@ -22,6 +22,7 @@ RAGNASONG_SONG = "https://ragnasong.com/api/map/{id}.zip"
 SONGS_PER_PAGE = 10
 
 custom_songs_path = Path("~/Documents").expanduser() / "Ragnarock" / "CustomSongs"
+config = json.load(open("config.json"))
 
 def err(s):
     print(colorama.Fore.RED + s + colorama.Style.RESET_ALL)
@@ -31,6 +32,10 @@ def warn(s):
 
 def ok(s):
     print(colorama.Fore.GREEN + s + colorama.Style.RESET_ALL)
+
+def verbose(s):
+    if config["verbose"]:
+        print(s)
 
 if not custom_songs_path.exists():
     warn(f"Create custom songs path {custom_songs_path}")
@@ -61,24 +66,32 @@ while True:
             if c in string.ascii_lowercase:
                 song_folder_name += c
 
+        if song_folder_name in downloaded_songs:
+            verbose(f"[ALREADY DOWNLOADED] {song_name}")
+            if song_folder_name in config["ignored_songs"]:
+                ok(f"[REMOVING] {song_name}")
+                shutil.rmtree(custom_songs_path / song_folder_name)
+            continue
+
+        if song_folder_name in config["ignored_songs"]:
+            verbose(f"[IGNORED] {song_name}")
+            continue
+
         votes = song['downVotes'] + song['upVotes']
-        if votes < REQ_VOTES:
-            warn(f"[NOT ENOUGH VOTES {votes}/{REQ_VOTES}] {song_name}")
+        if votes < config["min_votes"]:
+            verbose(f"[NOT ENOUGH VOTES {votes}/{config['min_votes']}] {song_name}")
             continue
         ratio = song['upVotes'] / votes
-        if ratio < REQ_RATIO:
-            warn(f"[RATING TOO LOW {ratio}/{REQ_RATIO}] {song_name}")
+        if ratio < config["good_bad_ratio"]:
+            verbose(f"[RATING TOO LOW {ratio}/{config['good_bad_ratio']}] {song_name}")
             continue
-        if song_folder_name in downloaded_songs:
-            ok(f"[ALREADY DOWNLOADED] {song_name}")
-            continue
-        warn(f"[DOWNLOADING...] {song_name}")
+        ok(f"[DOWNLOADING...] {song_name}")
         url_song = RAGNASONG_SONG.format(id=song_id)
         r_song = requests.get(url_song)
         with zipfile.ZipFile(BytesIO(r_song.content)) as zf:
             folder_name = custom_songs_path / song_folder_name
             folder_name.mkdir()
-            warn(f"[EXTRACTING...] in {folder_name}")
+            verbose(f"[EXTRACTING...] in {folder_name}")
             for f_in_zip in zf.namelist():
                 splitted = f_in_zip.split('/')
                 if len(splitted) == 2:
