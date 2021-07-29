@@ -4,7 +4,11 @@ import json
 import shutil
 from pathlib import Path
 import requests
-import colorama
+try:
+    import colorama
+    has_colorama = True
+except ModuleNotFoundError:
+    has_colorama = False
 from pprint import pprint
 import zipfile
 from io import BytesIO
@@ -21,13 +25,22 @@ custom_songs_path = Path("~/Documents").expanduser() / "Ragnarock" / "CustomSong
 config = json.load(open("config.json"))
 
 def err(s):
-    print(colorama.Fore.RED + s + colorama.Style.RESET_ALL)
+    if has_colorama:
+        print(colorama.Fore.RED + s + colorama.Style.RESET_ALL)
+    else:
+        print(s)
 
 def warn(s):
-    print(colorama.Fore.YELLOW + s + colorama.Style.RESET_ALL)
+    if has_colorama:
+        print(colorama.Fore.YELLOW + s + colorama.Style.RESET_ALL)
+    else:
+        print(s)
 
 def ok(s):
-    print(colorama.Fore.GREEN + s + colorama.Style.RESET_ALL)
+    if has_colorama:
+        print(colorama.Fore.GREEN + s + colorama.Style.RESET_ALL)
+    else:
+        print(s)
 
 def verbose(s):
     if config["verbose"]:
