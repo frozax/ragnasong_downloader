@@ -1,7 +1,7 @@
 {
-    "verbose": true,
     "min_votes": 4,
     "good_bad_ratio": 0.8,
     "ignored_songs": [
-    ]
+    ],
+    "verbose": true
 }

@@ -1,8 +1,4 @@
 # script to download custom songs from ragnarock
-# you can choose the number of votes and rating below
-#
-# i'm @frozax on github and twitter. If you want to support me, just have a look at my games at https://www.frozax.com (mobile and steam)
-# i'm prozero in-game and on the discord of ragnarock and ragnasongs
 
 import json
 import shutil
